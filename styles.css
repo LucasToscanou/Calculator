@@ -1,0 +1,23 @@
+.outer-container{
+    position: absolute;
+    margin-left: 40%;
+    margin-right: auto;
+}
+
+.screen{
+    background-color: aqua;
+}
+
+.button-box{
+    display: grid;
+    grid-template-columns: 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
+    grid-template-rows: auto;
+    /*space in between buttons*/
+    gap: 10px; 
+    /* Positioning of the buttons within the cell */
+    place-items: center;
+}
+
+.button-box button{
+    background-color: green;
+}
