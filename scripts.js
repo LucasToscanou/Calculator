@@ -1,10 +1,39 @@
+//User keyboard input event
+// const inputField = document.getElementById('exprDisplay');
+
+// inputField.addEventListener('keydown', (event) => {
+//   const key = event.key;
+//   const value = inputField.value;
+  
+//   // Allow numeric keys, decimal point, and some math symbols
+//   if (/[\d\.+\-*/%]/.test(key)) {
+//     // Prevent multiple decimal points in the input
+//     if (key === '.' && value.includes('.')) {
+//       event.preventDefault();
+//     }
+//   } else {
+//     // Prevent other keys from being entered
+//     event.preventDefault();
+//   }
+// });
+
+// inputField.addEventListener('input', (event) => {
+//   const value = event.target.value;
+  
+//   // Remove any non-numeric, non-decimal point characters from the input
+//   event.target.value = value.replace(/[^\d\.+\-*/%]/g, '');
+// });
+
+
 //Button click event---------------------------------
-const buttons = document.querySelector('.button-box');
+const buttons = document.querySelector('.grid-container');
 buttons.addEventListener('click', myFunction);
 
 //Define the expression array that will take, operators
 //operands, and characters like parenthesis as unique elements
 var expr = [];
+
+
 function myFunction(event) {
     const {target} = event;
     const value = (target.innerHTML).trim();
@@ -15,10 +44,11 @@ function myFunction(event) {
     else if(value){
         if(value == '='){
             expr = formatExpr(expr);
-            console.log('Formated Expression: ', expr);
-            shuntingYard(expr);
-            //clear expression array for the next calculation
-            expr = [];
+            // console.log('Formated Expression: ', expr);
+            const result = shuntingYard(expr);
+            updateDisplay(result);
+            //Saves the result from the previous calculation on the expression array for the next calculation
+            expr = [result];
         }
         else{
             var exprItemArr = [];
@@ -39,8 +69,17 @@ function myFunction(event) {
                 expr = expr.concat(exprItemArr);
 
             console.log('expr: ', expr);
+            updateDisplay(expr.join(' '));
         }
     }   
+}
+
+function updateDisplay(newValue){
+    // Get the input element by ID
+    var exprDisplay = document.getElementById("exprDisplay");
+
+    // Set the value of the input element
+    exprDisplay.value = newValue;
 }
 
 function formatExpr(expr){
@@ -63,28 +102,45 @@ function formatExpr(expr){
         const sumSubDomain = ['+', '-'];
         var signedExpr = [];
 
+        forLoop:
         for(var i = 0, len = expr.length; i < len; i++){
+            //Value to be concatanated to formattedExpr
             var concValue = '';
-            if( i >= 1
-                && sumSubDomain.includes(expr[i - 1]) 
+
+            //If the previous element in the expr array is a symbol, the current element is either '+' or '-' and the next element is
+            //not a symbol (i.e. it's a number), it joins the current element with the following element in the expr array.
+            //Obs: since the signedNumber is called after the floatNumber, the point ('.') is not include as a symbol.
+            if( (i >= 1 ? symbolDomain.includes(expr[i - 1]) : true)
                 && sumSubDomain.includes(expr[i]) 
-                && !symbolDomain.includes(expr[i + 1])
-                ){
+                && !symbolDomain.includes(expr[i + 1])){
                     //Join the sign and the number (next element in the array) 
                     concValue = expr[i] + expr[i + 1];
                     //It does not iterate over the 'i + 1' element because it was already analysed 
                     i++;
                 }
-            else
+            else {
                 //Edit: Throw a Syntax Error if 2 operators (disconsider parenthesis or equivalents) other than '+' and '-' are in a sequence.
                 //Edit: Throw a Syntax Error if more than 2 '+' or '-' are in a sequence.
+
+                //If the previous, the current and the following elements are symbols (not including 
+                //parenthesis and equivalents for the current and following), throws an error
+                if((i >= 1 ? symbolDomain.includes(expr[i - 1]) : true)
+                    && sumSubDomain.includes(expr[i]) 
+                    && symbolDomain.includes(expr[i + 1])){
+                        console.log('Error 4: Syntax Error from 3 or more consecutive symbols in the expression.');
+                        break forLoop;
+                }
                 concValue = expr[i];
+            }
             
 
-                signedExpr = signedExpr.concat(concValue);
+            signedExpr = signedExpr.concat(concValue);
         }
 
+        
         return signedExpr;
+
+        
     }
 
     //Solves the problem of the case '( )'
@@ -93,7 +149,7 @@ function formatExpr(expr){
         //The solution is to assume the user meant '(0)' with their input
         //Obs: This function must be run after the convertion of the braces and brackets into parenthesis
         //for a more complete solution.
-        var fixedExpr = [];
+        var formattedExpr = [];
 
         for(var i = 0, len = expr.length; i < len; i++){
             var concValue = '';
@@ -109,62 +165,59 @@ function formatExpr(expr){
                 concValue = expr[i];
             
 
-            fixedExpr = fixedExpr.concat(concValue);
+            formattedExpr = formattedExpr.concat(concValue);
         }
 
-        return fixedExpr;
+        return formattedExpr;
     }
 
     //Returns an array for the expression with the algarisms and floating point of float numbers bundled together. 
     function floatNumber(expr){
         //It parses through expr looking for a point ('.'). While it doesn't find it, it keeps track of the algarisms
-        //iterated and when the point is found, they are added as the integer part of the result float. After it found the point,
-        //it continues parsing and concatanating the algarisms found to the result float.
-        //Obs: once it parses through a symbol, the track of algarisms is emptied.
+        //iterated and when the point is found, they are added as the integer part of the result float. After it 
+        //found the point, it continues parsing and concatanating the algarisms found to the result float.
+        //Obs: once it parses through a symbol, the record of algarisms is emptied.
         const symbolDomain = ['(', ')', '+', '-', '*', '/'];
-        var fixedExpr = [];
         var integerPartSave = [];
+        var formattedExpr = [];
 
         outerloop:
         for(var i = 0, len = expr.length; i < len; i++){
+            //Value to be concatanated to formattedExpr
             var concValue = '';
+
+            //If it's an algarism, saves it in integerPartSave and in concValue
             if(!symbolDomain.includes(expr[i]) && expr[i] != '.'){
                 integerPartSave = integerPartSave.concat(expr[i]);
                 concValue = expr[i];
             }
+            //Else If it's a point ('.')
             else if(expr[i] == '.'){
-                if(i < 1)
-                    console.log("Error: Syntax Error from '.' in the expression.");
-                else{
-                    //Removes the elements that were added unecessarily to the fixedExpr
-                    fixedExpr = fixedExpr.slice(0, fixedExpr.length - integerPartSave.length);
-                    //Adds the interger part to the concValue
-                    concValue = concValue.concat(integerPartSave, '.');
-                    //Empties the saved algarisms from the integer part 
-                    integerPartSave = [];
+                //Removes the elements that were added unecessarily to the formattedExpr
+                formattedExpr = formattedExpr.slice(0, formattedExpr.length - integerPartSave.length);
+                //Adds the interger part to the concValue
+                concValue = concValue.concat(integerPartSave, '.');
+                //Empties the saved algarisms from the integer part 
+                integerPartSave = [];
 
-                    //Checks if there are more than 1 point ('.') in a sequence and throws an error if it does
-                    if(i + 1 < len && expr[i + 1] == '.'){
-                        console.log("Error: Syntax Error from 2 '.' in a sequence in the expression.");
+                //Parses through the rest of the expression array to find the decimal part and concatanes it
+                //to concValue
+                for(var k = i; k < len && k + 1 < len; k++){
+                    //If there are more than 1 point ('.') before a symbol appears.
+                    if(expr[i + 1] == '.'){
+                        console.log("Error 3: Syntax Error from misplaced '.' in the expression.");
                         break outerloop;
                     }
-
-                    else{
-                        //While the next element is a number, it is added to concValue
-                        for(var k = i; k < len && k + 1 < len; k++){
-                            if(expr[i + 1] != '.'){
-                                console.log("Error: Syntax Error from misplaced '.' in the expression.");
-                                break;
-                            }
-                            if(!symbolDomain.includes(expr[k + 1])){
-                                concValue = concValue.concat(expr[k + 1]);
-                                //Skips the elements that were concatanated to concValue
-                                i++;
-                            }
-                            else
-                                break;
-                        }
+                    //If the next element is a number, it is added to concValue.
+                    if(!symbolDomain.includes(expr[k + 1])){
+                        concValue = concValue.concat(expr[k + 1]);
+                        //Skips the elements that were concatanated to concValue.
+                        i++;
                     }
+                    //If isn't a point and it is a symbol, it breaks and both the integer and the decimal parts
+                    //of the float are now known and the float is stored in concValue. 
+                    else
+                        break;
                 }
             }
             else{
@@ -173,10 +226,10 @@ function formatExpr(expr){
                 concValue = expr[i];
             }
 
-            fixedExpr = fixedExpr.concat(concValue);
+            formattedExpr = formattedExpr.concat(concValue);
         }
 
-        return fixedExpr;
+        return formattedExpr;
     }
 }
 

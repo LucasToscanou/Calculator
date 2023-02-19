@@ -5,9 +5,11 @@
 -Add Scientific mode;
 -Subsitute if for ternary when possible and justifiable;
 -Create the 'expression' object and add the format correction function as mehtods;
-
+-Number the errors;
 
 #Front
 -Add a display;
 -Add a suggested expressions to show the calculator capabilities;
 -Say that '.' is used as floating point and not ',';
+-Add an way to see errors;
+-Add png's or svg's to minimize, maximize, close and backspace
