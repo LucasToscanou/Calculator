@@ -12,27 +12,77 @@
 
     <div class="outer-container">
 
-        <div class="screen">
-
+        <div class="header">
+            <div class="left">
+                🧮 Calculator
+            </div>
+            <div class="right">
+                <button class="window-button min-full-button"> - </button>
+                <button class="window-button min-full-button"> # </button>
+                <button class="window-button close-button"> X </button>
+            </div>
         </div>
 
-        <div class="button-box">
+        <div class="subheader">
+            <div class="left">
+                <!-- <img class="menu-icon" src="/assets/icons/menu_FILL0_wght400_GRAD0_opsz48.svg" alt="Menu icon"> -->
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="48">
+                    <path d="M120 816v-60h720v60H120Zm0-210v-60h720v60H120Zm0-210v-60h720v60H120Z"/>
+                </svg>
+                <div class="sub-header-title">
+                    Standart
+                </div>
+                
+            </div>
+            <div class="right">
 
-            <button> 0 </button>
-            <button> 1 </button>
-            <button> 2 </button>
-            <button> 3 </button>
-            <button> 4 </button>
-            <button> 5 </button>
-            <button> 6 </button>
-            <button> 7 </button>
-            <button> 8 </button>
-            <button> 9 </button>
-            <button> ( </button>
-            <button> ) </button>
-            <!-- <button> +/- </button> -->
-            <button> . </button>
+            </div>
+        </div>
 
+        <div class="screen">
+            <input id='expr' class="displayArea" type="text" value="0" readonly />
+        </div>
+
+        <div class="grid-container">
+
+            <!-- Line 1 -->
+            <button class='grid-item padArea2'> % </button>
+            <button class='grid-item padArea2'> CE </button>
+            <button class='grid-item padArea2'> CLEAR </button>
+            <button class='grid-item padArea2'> <= </button>
+
+            <!-- Line 2 -->
+            <button class='grid-item padArea2'> 1/x </button>
+            <button class='grid-item padArea2'> x^2 </button>
+            <button class='grid-item padArea2'> sqrt(x) </button>
+            <button class='grid-item padArea2'> / </button>
+
+
+            <!-- Line 3 -->
+            <button class='grid-item padArea1'> 7 </button>
+            <button class='grid-item padArea1'> 8 </button>
+            <button class='grid-item padArea1'> 9 </button>
+            <button class='grid-item padArea2'> * </button>
+
+            <!-- Line 4 -->
+            <button class='grid-item padArea1'> 4 </button>
+            <button class='grid-item padArea1'> 5 </button>
+            <button class='grid-item padArea1'> 6 </button>
+            <button class='grid-item padArea2'> - </button>
+
+            <!-- Line 5 -->
+            <button class='grid-item padArea1'> 1 </button>
+            <button class='grid-item padArea1'> 2 </button>
+            <button class='grid-item padArea1'> 3 </button>
+            <button class='grid-item padArea2'> + </button>
+
+            <!-- Line 6 -->
+            <button class='grid-item padArea1'>  </button>
+            <button class='grid-item padArea1'> 0 </button>
+            <button class='grid-item padArea1'> . </button>
+            <button class='grid-item padArea3'> = </button>
+
+            
 
             <!-- <button> % </button> -->
             <!-- <button> CE </button>
@@ -41,12 +91,7 @@
             <button> 1/x </button>
             <button> x^2 </button> -->
             <!-- <button> sqrt(x) </button> -->
-            <button> / </button>
-            <button> * </button>
-            <button> + </button>
-            <button> - </button>
-            <button> = </button>
-            <button> CLEAR </button>
+            
 
         </div>
 

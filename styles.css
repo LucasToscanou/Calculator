@@ -1,23 +1,215 @@
+/* General */
+@font-face {
+    font-family: 'Exo 2';
+    src: url('./assets/fonts/static/Exo2-ExtraLight.ttf') format('truetype');
+    font-weight: light;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Exo 2';
+    src: url('./assets/fonts/static/Exo2-Medium.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Outer container */
 .outer-container{
     position: absolute;
     margin-left: 40%;
+    /* margin-right: 0; */
+    margin-bottom: 0;
+    margin-top: 5%;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-top: none;
+    border: 0;
+    background-color: #202020;
+}
+ 
+/* Header */
+.header{
+    display: flex;
+    width: 99%;
+    border: none;
+    margin-top: none;
+    padding-top: none;
+}
+
+.header .left{
+    margin-left: 1.75%;
     margin-right: auto;
+    margin-top: 2%;
+    color: white;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 6px;
 }
 
-.screen{
-    background-color: aqua;
+
+.header .right{
+    display: flex;
+    flex-direction: row;
+    margin-left: auto;
+    margin-right: -3px;
+    display: flex;
 }
 
-.button-box{
+.header .right .window-button{
+    margin-left: 0%;
+    margin-right: 0%;
+    padding-left: 10%;
+    padding-right: 10%;
+    border: 0;
+    background-color: #202020;
+    color: white;
+    float: right;
+    font-family: 'Exo 2', sans-serif;
+}
+
+.min-full-button{
+    width: 24px;
+    height: auto;
+}
+
+.header .right .min-full-button:hover {
+    background-color: #363636;
+} 
+
+.header .right .close-button:hover {
+    background-color: red;
+} 
+
+
+/* Sub Header */
+.subheader{
+    display: flex;
+    width: 100%;
+    margin-top: 0.5%;
+}
+
+.subheader .left{
+    display: flex;
+    flex-direction: row;
+    margin-right: auto;
+    align-items: center;
+    justify-items: center;
+    color: white;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: bold;
+}
+
+.menu-icon {
+    padding: 1%;
+    margin: 1%;
+    width: 10%;
+    height: auto;
+    fill: white;
+}
+
+.sub-header-title{
+    font-size: 12px;
+    margin-bottom: 3.5%;
+}
+  
+.subheader .right{
+    margin-left: auto;
+    margin-right: 5%;
+    display: flex;
+}
+
+.subheader .right .window-button{
+    margin-left: 0%;
+    margin-right: 0%;
+    padding-left: 10%;
+    padding-right: 10%;
+    border: 0;
+    background-color: #202020;
+    color: white;
+    float: right;
+    font-family: 'Exo 2', sans-serif;
+}
+
+.subheader .right .min-full-button:hover {
+    background-color: #363636;
+} 
+
+.subheader .right .close-button:hover {
+    background-color: red;
+} 
+
+
+/* Display */
+.screen {
+    background-color: #202020;
+    border: 1px solid black;
+    width: 100%;
+    height: 40%;
+    margin-bottom: 5%;
+    display: flex; /* Add display flex to screen */
+    justify-content: flex-end; /* Align children to the end of the flex container */
+    align-items: flex-end;
+}
+
+.displayArea {
+    display: block;
+    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-top: 12%; /* Add margin-top auto to displayArea */
+    margin-left: auto; /* Add margin-left auto to displayArea */
+    font-size: 16px;
+    padding: 1px;
+    text-align: right;
+}
+  
+  
+
+
+/* Grid button pad */
+.grid-container {
     display: grid;
-    grid-template-columns: 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
-    grid-template-rows: auto;
-    /*space in between buttons*/
-    gap: 10px; 
-    /* Positioning of the buttons within the cell */
-    place-items: center;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px;
+}
+  
+.grid-item {
+    color: white;
+    text-align: center; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0px solid black;
+    border-radius: 2px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 7.5px;
+    padding-top:20%;
+    padding-bottom: 20%;
+    padding-left: 5%;
+    padding-right: 5%;;
 }
 
-.button-box button{
-    background-color: green;
+.padArea1{
+    background-color: #323232;
 }
+
+.padArea1:hover {
+    background-color: #3b3b3b;
+}
+
+.padArea2{
+    background-color: #3b3b3b; 
+}
+.padArea2:hover {
+    background-color: #323232;
+}
+
+.padArea3{
+    background-color: #595959;
+    color: #272727;
+}
+.padArea3:hover {
+    background-color: #535353;
+}
+
