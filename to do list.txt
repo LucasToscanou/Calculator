@@ -1,0 +1,13 @@
+*To do list*
+
+#Back
+-Gather the data sets at the top of code (eg. operators, numbers, sum and subtraction);
+-Add Scientific mode;
+-Subsitute if for ternary when possible and justifiable;
+-Create the 'expression' object and add the format correction function as mehtods;
+
+
+#Front
+-Add a display;
+-Add a suggested expressions to show the calculator capabilities;
+-Say that '.' is used as floating point and not ',';
