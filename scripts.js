@@ -1,61 +1,116 @@
+//User keyboard input event------------------------------
+const inputField = document.getElementById('exprDisplay');
+console.log(inputField);
+
+inputField.addEventListener('keydown', (event) => {
+  const key = event.key;
+  const value = inputField.value;
+
+  // Allow numeric keys, decimal point, math symbols, and parentheses, brackets, and curly braces
+  if (/[\d\.+\-*/%()\[\]{}]/.test(key)) {
+    // Prevent multiple decimal points in the input
+    if (key === '.' && value.includes('.')) {
+      event.preventDefault();
+    }
+  } else {
+    // Prevent other keys from being entered
+    event.preventDefault();
+  }
+});
+
+inputField.addEventListener('input', (event) => {
+  const value = event.target.value;
+
+  // Remove any non-numeric, non-decimal point, non-math symbol, and non-parentheses/brackets/curly braces characters from the input
+  event.target.value = value.replace(/[^\d\.+\-*/%()\[\]{}]/g, '');
+//   Updates the rawExpr with the expression on the display.
+  rawExpr = event.target.value.split('');
+});
+
+
+
 //Button click event---------------------------------
-const buttons = document.querySelector('.button-box');
-buttons.addEventListener('click', myFunction);
+const buttons = document.querySelector('.grid-container');
+buttons.addEventListener('click', initialization);
 
 //Define the expression array that will take, operators
 //operands, and characters like parenthesis as unique elements
-var expr = [];
-function myFunction(event) {
+var rawExpr = [];
+
+function initialization(event) {
     const {target} = event;
     const value = (target.innerHTML).trim();
-    // console.log('innerHTML: ', target.innerHTML);
+
     if(!target.matches('button'))
         return;
 
     else if(value){
-        if(value == '='){
-            expr = formatExpr(expr);
-            console.log('Formated Expression: ', expr);
-            shuntingYard(expr);
-            //clear expression array for the next calculation
-            expr = [];
-        }
-        else{
-            var exprItemArr = [];
+        switch (value) {
+            case '=':
+                const result = evaluateExpr(rawExpr);
+                rawExpr = [result];
+                break;
 
-            //Scientific calculator operations
-            //if(value == 'x^2')
-            //  expr.push(^2);
-            // 
-            // if(value == 'sqrt(x)')
-            //     exprItemArr = ['sqrt', '(', ')'];
-            // else
-            //     exprItemArr.push(value);
-            if(value == 'CLEAR')
-                expr = [];
-            else
-                exprItemArr.push(value);
-                // console.log('exprItemArr: ', exprItemArr);
-                expr = expr.concat(exprItemArr);
-
-            console.log('expr: ', expr);
+            case 'CLEAR':
+                rawExpr = [];
+                break;
+        
+            default:
+                rawExpr = rawExpr.concat(value);
+                break;
         }
-    }   
+        console.log('rawExpr: ', rawExpr);
+    }
+
+    //Always updates the expression shown on the display
+    updateDisplay(rawExpr);
+}   
+
+
+function updateDisplay(newValue){
+    // Get the input element by ID
+    var exprDisplay = document.getElementById("exprDisplay");
+
+    // Set the value of the input element
+    exprDisplay.value = newValue.join('');
 }
 
-function formatExpr(expr){
-    
-    // //Considers curly braces and brackets as parenthesis
-    // expr = expr.map((elem) => {
-    //     if( ['{', '['].includes(elem) )
-    //         return '(';
-    //     else if ( ['}', ']'].includes(elem) )
-    //         return ')';
-    // })
-    expr = emptyParenthesisFix(expr);
-    expr = floatNumber(expr);
-    return signedNumber(expr);
+function evaluateExpr(rawExpr){
+    var expr = formatExpr(rawExpr);
+    const result = shuntingYard(expr);
 
+    return result;
+}
+
+//Converts from string to an array of operands, operators and parenthesis (and equivalents)
+//It also detects some synthax errors.
+function formatExpr(expr){
+    var formattedExpr = expr;
+
+    // console.log('formattedExpr: ', formattedExpr);
+    formattedExpr = parenthesisSimilar(formattedExpr);
+    // console.log('parenthesisSimilar formattedExpr: ', formattedExpr);
+    formattedExpr = emptyParenthesisFix(formattedExpr);
+    // console.log('emptyParentheisFix formattedExpr: ', formattedExpr);
+    formattedExpr = floatNumber(formattedExpr);
+    // console.log('floatNumber formattedExpr: ', formattedExpr);
+    formattedExpr = multAlgNumber(formattedExpr);
+    // console.log('multAlgNumber formattedExpr: ', formattedExpr);
+    formattedExpr = signedNumber(formattedExpr);
+    // console.log('signedNumber formattedExpr: ', formattedExpr);
+
+    
+    return formattedExpr;
+
+    //Returns an array with the brackets and braces substituted for parenthesis
+    function parenthesisSimilar(expr){
+        for(var i = 0, len = expr.length; i < len; i++){
+            if(expr[i] =='[' || expr[i] =='{') expr[i] = '(' ;
+            else if(expr[i] ==']' || expr[i] =='}') expr[i] = ')' ;
+            console.log('parenthesisSimilar expr: ', expr);
+        }
+        return expr;
+    }
 
     //Returns an array for the expression with signed numbers bundled together with their signs. 
     function signedNumber(expr){
@@ -63,28 +118,45 @@ function formatExpr(expr){
         const sumSubDomain = ['+', '-'];
         var signedExpr = [];
 
+        forLoop:
         for(var i = 0, len = expr.length; i < len; i++){
+            //Value to be concatanated to formattedExpr
             var concValue = '';
-            if( i >= 1
-                && sumSubDomain.includes(expr[i - 1]) 
+
+            //If the previous element in the expr array is a symbol, the current element is either '+' or '-' and the next element is
+            //not a symbol (i.e. it's a number), it joins the current element with the following element in the expr array.
+            //Obs: since the signedNumber is called after the floatNumber, the point ('.') is not include as a symbol.
+            if( (i >= 1 ? symbolDomain.includes(expr[i - 1]) : true)
                 && sumSubDomain.includes(expr[i]) 
-                && !symbolDomain.includes(expr[i + 1])
-                ){
+                && !symbolDomain.includes(expr[i + 1])){
                     //Join the sign and the number (next element in the array) 
                     concValue = expr[i] + expr[i + 1];
                     //It does not iterate over the 'i + 1' element because it was already analysed 
                     i++;
                 }
-            else
+            else {
                 //Edit: Throw a Syntax Error if 2 operators (disconsider parenthesis or equivalents) other than '+' and '-' are in a sequence.
                 //Edit: Throw a Syntax Error if more than 2 '+' or '-' are in a sequence.
+
+                //If the previous, the current and the following elements are symbols (not including 
+                //parenthesis and equivalents for the current and following), throws an error
+                if((i >= 1 ? symbolDomain.includes(expr[i - 1]) : true)
+                    && sumSubDomain.includes(expr[i]) 
+                    && symbolDomain.includes(expr[i + 1])){
+                        console.log('Error 4: Syntax Error from 3 or more consecutive symbols in the expression.');
+                        break forLoop;
+                }
                 concValue = expr[i];
+            }
             
 
-                signedExpr = signedExpr.concat(concValue);
+            signedExpr = signedExpr.concat(concValue);
         }
 
+        
         return signedExpr;
+
+        
     }
 
     //Solves the problem of the case '( )'
@@ -93,7 +165,7 @@ function formatExpr(expr){
         //The solution is to assume the user meant '(0)' with their input
         //Obs: This function must be run after the convertion of the braces and brackets into parenthesis
         //for a more complete solution.
-        var fixedExpr = [];
+        var formattedExpr = [];
 
         for(var i = 0, len = expr.length; i < len; i++){
             var concValue = '';
@@ -109,62 +181,59 @@ function formatExpr(expr){
                 concValue = expr[i];
             
 
-            fixedExpr = fixedExpr.concat(concValue);
+            formattedExpr = formattedExpr.concat(concValue);
         }
 
-        return fixedExpr;
+        return formattedExpr;
     }
 
     //Returns an array for the expression with the algarisms and floating point of float numbers bundled together. 
     function floatNumber(expr){
         //It parses through expr looking for a point ('.'). While it doesn't find it, it keeps track of the algarisms
-        //iterated and when the point is found, they are added as the integer part of the result float. After it found the point,
-        //it continues parsing and concatanating the algarisms found to the result float.
-        //Obs: once it parses through a symbol, the track of algarisms is emptied.
+        //iterated and when the point is found, they are added as the integer part of the result float. After it 
+        //found the point, it continues parsing and concatanating the algarisms found to the result float.
+        //Obs: once it parses through a symbol, the record of algarisms is emptied.
         const symbolDomain = ['(', ')', '+', '-', '*', '/'];
-        var fixedExpr = [];
         var integerPartSave = [];
+        var formattedExpr = [];
 
         outerloop:
         for(var i = 0, len = expr.length; i < len; i++){
+            //Value to be concatanated to formattedExpr
             var concValue = '';
+
+            //If it's an algarism, saves it in integerPartSave and in concValue
             if(!symbolDomain.includes(expr[i]) && expr[i] != '.'){
                 integerPartSave = integerPartSave.concat(expr[i]);
                 concValue = expr[i];
             }
+            //Else If it's a point ('.')
             else if(expr[i] == '.'){
-                if(i < 1)
-                    console.log("Error: Syntax Error from '.' in the expression.");
-                else{
-                    //Removes the elements that were added unecessarily to the fixedExpr
-                    fixedExpr = fixedExpr.slice(0, fixedExpr.length - integerPartSave.length);
-                    //Adds the interger part to the concValue
-                    concValue = concValue.concat(integerPartSave, '.');
-                    //Empties the saved algarisms from the integer part 
-                    integerPartSave = [];
+                //Removes the elements that were added unecessarily to the formattedExpr
+                formattedExpr = formattedExpr.slice(0, formattedExpr.length - integerPartSave.length);
+                //Adds the interger part to the concValue
+                concValue = concValue.concat(integerPartSave, '.');
+                //Empties the saved algarisms from the integer part 
+                integerPartSave = [];
 
-                    //Checks if there are more than 1 point ('.') in a sequence and throws an error if it does
-                    if(i + 1 < len && expr[i + 1] == '.'){
-                        console.log("Error: Syntax Error from 2 '.' in a sequence in the expression.");
+                //Parses through the rest of the expression array to find the decimal part and concatanes it
+                //to concValue
+                for(var k = i; k < len && k + 1 < len; k++){
+                    //If there are more than 1 point ('.') before a symbol appears.
+                    if(expr[i + 1] == '.'){
+                        console.log("Error 3: Syntax Error from misplaced '.' in the expression.");
                         break outerloop;
                     }
-
-                    else{
-                        //While the next element is a number, it is added to concValue
-                        for(var k = i; k < len && k + 1 < len; k++){
-                            if(expr[i + 1] != '.'){
-                                console.log("Error: Syntax Error from misplaced '.' in the expression.");
-                                break;
-                            }
-                            if(!symbolDomain.includes(expr[k + 1])){
-                                concValue = concValue.concat(expr[k + 1]);
-                                //Skips the elements that were concatanated to concValue
-                                i++;
-                            }
-                            else
-                                break;
-                        }
+                    //If the next element is a number, it is added to concValue.
+                    if(!symbolDomain.includes(expr[k + 1])){
+                        concValue = concValue.concat(expr[k + 1]);
+                        //Skips the elements that were concatanated to concValue.
+                        i++;
                     }
+                    //If isn't a point and it is a symbol, it breaks and both the integer and the decimal parts
+                    //of the float are now known and the float is stored in concValue. 
+                    else
+                        break;
                 }
             }
             else{
@@ -173,10 +242,41 @@ function formatExpr(expr){
                 concValue = expr[i];
             }
 
-            fixedExpr = fixedExpr.concat(concValue);
+            formattedExpr = formattedExpr.concat(concValue);
         }
 
-        return fixedExpr;
+        return formattedExpr;
+    }
+
+    //Returns an array where the multiple algarism numbers are represented by one element
+    function multAlgNumber(expr){
+        const symbolDomainNoPoint = ['(', ')', '+', '-', '*', '/', '.'];
+        var formattedExpr = [];
+        var integerSave = [];
+
+        // expr = ['1' , '+', '2', '4', '3', '-', '7']
+        // formattedExpr = []
+        //integerSave = []
+        outerloop:
+        for(var i = 0, len = expr.length; i < len; i++){
+
+            if(!symbolDomainNoPoint.includes(expr[i])){
+                integerSave = integerSave.concat(expr[i]);
+
+                if(i + 1 < len && symbolDomainNoPoint.includes(expr[i + 1])){
+                    formattedExpr = formattedExpr.concat(integerSave.join(''));
+                    integerSave = [];
+                }
+                else if (i == len - 1){
+                    formattedExpr = formattedExpr.concat(integerSave.join(''));
+                    integerSave = [];
+                }
+            }
+            else
+                formattedExpr = formattedExpr.concat(expr[i]);
+        } 
+        
+        return formattedExpr;
     }
 }
 
