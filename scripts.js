@@ -1,100 +1,116 @@
-//User keyboard input event
-// const inputField = document.getElementById('exprDisplay');
+//User keyboard input event------------------------------
+const inputField = document.getElementById('exprDisplay');
+console.log(inputField);
 
-// inputField.addEventListener('keydown', (event) => {
-//   const key = event.key;
-//   const value = inputField.value;
-  
-//   // Allow numeric keys, decimal point, and some math symbols
-//   if (/[\d\.+\-*/%]/.test(key)) {
-//     // Prevent multiple decimal points in the input
-//     if (key === '.' && value.includes('.')) {
-//       event.preventDefault();
-//     }
-//   } else {
-//     // Prevent other keys from being entered
-//     event.preventDefault();
-//   }
-// });
+inputField.addEventListener('keydown', (event) => {
+  const key = event.key;
+  const value = inputField.value;
 
-// inputField.addEventListener('input', (event) => {
-//   const value = event.target.value;
-  
-//   // Remove any non-numeric, non-decimal point characters from the input
-//   event.target.value = value.replace(/[^\d\.+\-*/%]/g, '');
-// });
+  // Allow numeric keys, decimal point, math symbols, and parentheses, brackets, and curly braces
+  if (/[\d\.+\-*/%()\[\]{}]/.test(key)) {
+    // Prevent multiple decimal points in the input
+    if (key === '.' && value.includes('.')) {
+      event.preventDefault();
+    }
+  } else {
+    // Prevent other keys from being entered
+    event.preventDefault();
+  }
+});
+
+inputField.addEventListener('input', (event) => {
+  const value = event.target.value;
+
+  // Remove any non-numeric, non-decimal point, non-math symbol, and non-parentheses/brackets/curly braces characters from the input
+  event.target.value = value.replace(/[^\d\.+\-*/%()\[\]{}]/g, '');
+//   Updates the rawExpr with the expression on the display.
+  rawExpr = event.target.value.split('');
+});
+
 
 
 //Button click event---------------------------------
 const buttons = document.querySelector('.grid-container');
-buttons.addEventListener('click', myFunction);
+buttons.addEventListener('click', initialization);
 
 //Define the expression array that will take, operators
 //operands, and characters like parenthesis as unique elements
-var expr = [];
+var rawExpr = [];
 
-
-function myFunction(event) {
+function initialization(event) {
     const {target} = event;
     const value = (target.innerHTML).trim();
-    // console.log('innerHTML: ', target.innerHTML);
+
     if(!target.matches('button'))
         return;
 
     else if(value){
-        if(value == '='){
-            expr = formatExpr(expr);
-            // console.log('Formated Expression: ', expr);
-            const result = shuntingYard(expr);
-            updateDisplay(result);
-            //Saves the result from the previous calculation on the expression array for the next calculation
-            expr = [result];
-        }
-        else{
-            var exprItemArr = [];
+        switch (value) {
+            case '=':
+                const result = evaluateExpr(rawExpr);
+                rawExpr = [result];
+                break;
 
-            //Scientific calculator operations
-            //if(value == 'x^2')
-            //  expr.push(^2);
-            // 
-            // if(value == 'sqrt(x)')
-            //     exprItemArr = ['sqrt', '(', ')'];
-            // else
-            //     exprItemArr.push(value);
-            if(value == 'CLEAR')
-                expr = [];
-            else
-                exprItemArr.push(value);
-                // console.log('exprItemArr: ', exprItemArr);
-                expr = expr.concat(exprItemArr);
-
-            console.log('expr: ', expr);
-            updateDisplay(expr.join(' '));
+            case 'CLEAR':
+                rawExpr = [];
+                break;
+        
+            default:
+                rawExpr = rawExpr.concat(value);
+                break;
         }
-    }   
-}
+        console.log('rawExpr: ', rawExpr);
+    }
+
+    //Always updates the expression shown on the display
+    updateDisplay(rawExpr);
+}   
+
 
 function updateDisplay(newValue){
     // Get the input element by ID
     var exprDisplay = document.getElementById("exprDisplay");
 
     // Set the value of the input element
-    exprDisplay.value = newValue;
+    exprDisplay.value = newValue.join('');
 }
 
-function formatExpr(expr){
-    
-    // //Considers curly braces and brackets as parenthesis
-    // expr = expr.map((elem) => {
-    //     if( ['{', '['].includes(elem) )
-    //         return '(';
-    //     else if ( ['}', ']'].includes(elem) )
-    //         return ')';
-    // })
-    expr = emptyParenthesisFix(expr);
-    expr = floatNumber(expr);
-    return signedNumber(expr);
+function evaluateExpr(rawExpr){
+    var expr = formatExpr(rawExpr);
+    const result = shuntingYard(expr);
 
+    return result;
+}
+
+//Converts from string to an array of operands, operators and parenthesis (and equivalents)
+//It also detects some synthax errors.
+function formatExpr(expr){
+    var formattedExpr = expr;
+
+    // console.log('formattedExpr: ', formattedExpr);
+    formattedExpr = parenthesisSimilar(formattedExpr);
+    // console.log('parenthesisSimilar formattedExpr: ', formattedExpr);
+    formattedExpr = emptyParenthesisFix(formattedExpr);
+    // console.log('emptyParentheisFix formattedExpr: ', formattedExpr);
+    formattedExpr = floatNumber(formattedExpr);
+    // console.log('floatNumber formattedExpr: ', formattedExpr);
+    formattedExpr = multAlgNumber(formattedExpr);
+    // console.log('multAlgNumber formattedExpr: ', formattedExpr);
+    formattedExpr = signedNumber(formattedExpr);
+    // console.log('signedNumber formattedExpr: ', formattedExpr);
+
+    
+    return formattedExpr;
+
+    //Returns an array with the brackets and braces substituted for parenthesis
+    function parenthesisSimilar(expr){
+        for(var i = 0, len = expr.length; i < len; i++){
+            if(expr[i] =='[' || expr[i] =='{') expr[i] = '(' ;
+            else if(expr[i] ==']' || expr[i] =='}') expr[i] = ')' ;
+            console.log('parenthesisSimilar expr: ', expr);
+        }
+        return expr;
+    }
 
     //Returns an array for the expression with signed numbers bundled together with their signs. 
     function signedNumber(expr){
@@ -229,6 +245,37 @@ function formatExpr(expr){
             formattedExpr = formattedExpr.concat(concValue);
         }
 
+        return formattedExpr;
+    }
+
+    //Returns an array where the multiple algarism numbers are represented by one element
+    function multAlgNumber(expr){
+        const symbolDomainNoPoint = ['(', ')', '+', '-', '*', '/', '.'];
+        var formattedExpr = [];
+        var integerSave = [];
+
+        // expr = ['1' , '+', '2', '4', '3', '-', '7']
+        // formattedExpr = []
+        //integerSave = []
+        outerloop:
+        for(var i = 0, len = expr.length; i < len; i++){
+
+            if(!symbolDomainNoPoint.includes(expr[i])){
+                integerSave = integerSave.concat(expr[i]);
+
+                if(i + 1 < len && symbolDomainNoPoint.includes(expr[i + 1])){
+                    formattedExpr = formattedExpr.concat(integerSave.join(''));
+                    integerSave = [];
+                }
+                else if (i == len - 1){
+                    formattedExpr = formattedExpr.concat(integerSave.join(''));
+                    integerSave = [];
+                }
+            }
+            else
+                formattedExpr = formattedExpr.concat(expr[i]);
+        } 
+        
         return formattedExpr;
     }
 }

@@ -13,3 +13,11 @@
 -Say that '.' is used as floating point and not ',';
 -Add an way to see errors;
 -Add png's or svg's to minimize, maximize, close and backspace
+
+
+#Deploy
+-Remove unecessary comment;
+-Remove tests.js from html;
+-Rename scripts.js to script.js;
+-Find a way for the screen to open in a separate window and shrinked;
+-Split the code into modules;
